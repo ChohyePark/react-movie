@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import DetailModal from "./DetailModal";
 
 // style 영역
 const Container = styled.div`
@@ -118,11 +119,17 @@ const MovieDetailBtn = styled.div`
 `;
 
 function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [keyWord, setKeyWord] = useState([]);
   const [movieNm, setMovieNm] = useState("");
   const [searchMovieList, setSearchMovieList] = useState([]);
 
+  // 영화 목록 불러오는 이벤트
   const onClickgetMoviesHandler = async () => {
+    if (movieNm === "") {
+      alert("영화 제목을 입력해주세요");
+      return;
+    }
     try {
       const response = await fetch(
         "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=d0c9be4aa298af875c88061a400b0b62&movieNm=" +
@@ -140,6 +147,7 @@ function App() {
     recentMovieKeywordHandler();
   };
 
+  // 최근 검색어
   const recentMovieKeywordHandler = () => {
     setKeyWord((preKeyword) => {
       if (preKeyword.length >= 5) {
@@ -154,14 +162,15 @@ function App() {
     setSearchMovieList((prev) => [...prev, ...data.movieListResult.movieList]);
   };
 
-  const detailMovieHandler = async (code) => {
-    console.log(code);
+  // 상세 보기 버튼 이벤트
+  const onClickDetailMovieHandler = async (code) => {
     try {
       const response = await fetch(
         `http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=d0c9be4aa298af875c88061a400b0b62&movieCd=${code}`,
       );
       const data = await response.json();
       console.log(data);
+      setIsModalOpen(true);
     } catch (error) {
       console.log(error);
     }
@@ -169,6 +178,7 @@ function App() {
 
   return (
     <Container>
+      {isModalOpen ? <DetailModal></DetailModal> : ""}
       <Title>검색</Title>
       <InputBox>
         <Input
@@ -197,7 +207,7 @@ function App() {
             <MovieLayer>
               <MovieDetailBtn
                 onClick={() => {
-                  detailMovieHandler(movie.movieCd);
+                  onClickDetailMovieHandler(movie.movieCd);
                 }}
               >
                 상세보기
