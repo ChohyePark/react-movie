@@ -7,7 +7,8 @@ const Container = styled.div`
   margin: auto;
   width: 50%;
   min-height: 920px;
-  height: 100%;
+  height: fit-content;
+  over-flow: hidden;
   border: 1px solid black;
   display: flex;
   align-items: center;
@@ -123,6 +124,7 @@ function App() {
   const [keyWord, setKeyWord] = useState([]);
   const [movieNm, setMovieNm] = useState("");
   const [searchMovieList, setSearchMovieList] = useState([]);
+  const [movieInfo, setMovieInfo] = useState(null);
 
   // 영화 목록 불러오는 이벤트
   const onClickgetMoviesHandler = async () => {
@@ -169,7 +171,8 @@ function App() {
         `http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=d0c9be4aa298af875c88061a400b0b62&movieCd=${code}`,
       );
       const data = await response.json();
-      console.log(data);
+      console.log(data.movieInfoResult.movieInfo);
+      setMovieInfo(data.movieInfoResult.movieInfo);
       setIsModalOpen(true);
     } catch (error) {
       console.log(error);
@@ -178,7 +181,14 @@ function App() {
 
   return (
     <Container>
-      {isModalOpen ? <DetailModal></DetailModal> : ""}
+      {isModalOpen ? (
+        <DetailModal
+          setIsModalOpen={setIsModalOpen}
+          movieInfo={movieInfo}
+        ></DetailModal>
+      ) : (
+        ""
+      )}
       <Title>검색</Title>
       <InputBox>
         <Input
